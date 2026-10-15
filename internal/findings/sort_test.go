@@ -1,6 +1,7 @@
 package findings
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -61,4 +62,26 @@ func TestSortTieBreaks(t *testing.T) {
 func TestSortEmpty(t *testing.T) {
 	Sort(nil)
 	Sort([]Finding{})
+}
+
+func ExampleSort() {
+	ref := func(ns, kind, name string) ResourceRef {
+		return ResourceRef{Namespace: ns, Kind: kind, Name: name}
+	}
+	fs := []Finding{
+		{RuleID: "pdb-missing", Resource: ref("web", "Deployment", "api")},
+		{RuleID: "pdb-missing", Resource: ref("billing", "StatefulSet", "db")},
+		{RuleID: "pdb-missing", Resource: ref("web", "DaemonSet", "agent")},
+		{RuleID: "pdb-missing", Resource: ref("billing", "Deployment", "worker")},
+	}
+	Sort(fs)
+	for _, f := range fs {
+		r := f.Resource
+		fmt.Printf("%s %s/%s\n", r.Namespace, r.Kind, r.Name)
+	}
+	// Output:
+	// billing Deployment/worker
+	// billing StatefulSet/db
+	// web DaemonSet/agent
+	// web Deployment/api
 }
